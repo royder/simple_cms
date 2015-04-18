@@ -51,6 +51,69 @@ Sometimes you will attempt to run a command and it will not work (i.e. rake db:m
 * tmp - place for rails to store temp files for itself
 * vendor - rarely used now due to gems
 
+## Rails Architecture
+Browser ~~ Web Server <-> Public -> |Rails Framework| -> Routing -> Controller <-> Model or -> View -> Web Server
+
+So, if you happen to have a file in public with the same name as one in the rails app, if public satisifies the request, the request will never make it to the rails framework.
+
+## Routes (config/routes.rb)
+Routes are processed in order of how they are set in the routes file.
+
+### Basic Routes
+* Simple Route (Match Route)
+* Default Route
+* Root Route
+
+#### Simple Route
+`get 'demo/index'` 
+
+the same as:
+`match 'demo/index', :to => "demo#index", :via => :get
+
+Which means it's matching the string demo/index and then sending to the demo controller and index action using GET
+
+#### Default Route
+This used to be the default route in rails.  This is no longer considered a best practice and not included in the routes file by default.
+:controller/:action/:id
+GET /demo/edit/52
+
+`match ':controller(:/action(/:id))', :via => :get`
+parens is used meaning optional
+
+you can add format as well:
+`match ':controller(:/action(/:id)(/:format))', :via => :get`
+
+#### Root Route
+When you go to the root of the application, where should the request be redirected.
+`root :to => 'demo#index'`
+or shorthand
+`root 'demo#index'`
+
+## Rendering Templates
+The controller chooses which view template to render similar to Grails. 
+
+Goes to requested controller and runs the action and renders the same view.  Or, if there is not an action with the action name requested, rails will attempt to just render the template with the requested name.
+
+The most common way to choose the template is to let the default rails behavior kick in. Or, you can specify the template to render within the action.
+`render(:template => 'demo/hello')` == `render('demo/hello')` == `render('hello')`
+
+## Redirecting Actions
+The controller can render a view as mentioned above but can also redirect to another action, which sends an HHTP redirect for the new request.
+`redirect_to(:controller => 'demo', :action => 'index')`
+
+The controller is optional if it's an action within the same controller.
+
+## View Templates
+ERB - Embedded Ruby 
+`<% code %>` - executes code
+`<%= code %>` - executes and outputs
+
+## Instance Variables
+Use instance variables to pass data from the controller to the view.  The controller is just a regular class that inherits from the ApplicationController.
+
+So, when the request comes in, rails creates an instance of the class.
+
+
 ## Database
 Used pgAdmin to add a new login role and set db config in config/database.yml
 Need to restart server to pick-up new configs.
@@ -60,6 +123,6 @@ Create using `rails generate controller controller_name view1 view2 view3`
 
 * You can use `layout false` in the controller to suppress the layout in a controller.
 
-## Routes (config/routes.rb)
+
 
 
