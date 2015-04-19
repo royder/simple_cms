@@ -23,7 +23,7 @@ Use the following command to make sure the gems and dependencies are good. Also 
 Sometimes you will attempt to run a command and it will not work (i.e. rake db:migrate).  You can sometimes easily solve the issue by trying `bundle exec rake db:migrate` which will execute the command in the context of the bundle of gems that go with the project.
 
 ## Accessing a Project
-`rails server` -> default runs on port 3000
+`rails server` or `rails s` -> default runs on port 3000
 
 ## Rails Default File Structure
 * app - where most of the application code lives
@@ -163,7 +163,7 @@ Using command line (psql)
 http://www.postgresql.org/docs/9.4/static/app-psql.html  
 `psql -d database_name -U user`
 
-### Rake
+## Rake
 Rake is a ruby helper program to run tasks (similar to Unix make) == Ruby Make - rake  
 Uses `Rakefile` inside the root of the application.  
 You can write custom tasks; place them in /lib/tasks  
@@ -172,7 +172,7 @@ See all tasks: `rake -T`
 See all db tasks: `rake -T db`  
 Pass environment variables to rake: `rake db:schema:dump RAILS_ENV=production`
 
-### Migrations
+## Migrations
 * Set of db instructions in ruby (or SQL if needed) to migrate the db from one state to another
 * Contains instructions for moving up to next state or back down to previous state
 * Keeps the db schema with the project and project version
@@ -246,6 +246,71 @@ This table is created to keep track of migrations by storing the migration times
 ### Solving Migration Problems
 If an migration throws an error half way through and the DB gets in a state in between a migration, it's usually best to fix your migration and then comment out the part of the migration file that completed so it will pick up where it left off or something similar instead of running SQL commands and possibly also mess with the schema_migrations table.
 
-### Model
+## Models
 To generate a model, which also creates a migration and test templates:  
-`rails generate model ModelName`
+`rails generate model SingularName`
+
+### ActiveRecord
+active record: a common design pattern for working with relational databases  
+ActiveRecord: refers to the rails implementation of the active record pattern  
+
+This design pattern allows us to retrieve records from a database as objects not as static rows.  The objects understand the structure of the table and contain data from table rows.  They know how to CRUD.
+
+Objects can be manipulated and saved back to the db with simple commands.
+
+Example:  
+```ruby
+user = User.new
+user.first_name = "First"
+user.save # SQL INSERT
+
+user.last_name = "Last"
+user.save # SQL UPDATE
+
+user.delete # SQL DELETE
+```
+### ActiveRelation
+Added in Rails v3 (ARel)
+OO interpretation of relational algebra - or simplifies the generation of complex db queries by allowing chaining  simple commands which will be joined and use efficient more complicated SQL.
+
+Example:  
+```ruby
+users = User.where(:first_name => 'First')
+users = users.order('last_name ASC').limit(5)
+users = users.include(:articles_authored)
+
+# SELECT users.*, articles.*
+# FROM users
+# LEFT JOIN articles ON (users.id =
+#   articles.author_id)
+# WHERE users.first_name = 'First'
+# ORDER BY last_name ASC LIMIT 5
+```
+
+## Rails Console
+Similar to irb: `rails console` or `rails c` or `rails console env`
+Great way to work with your models and view data during development.
+
+### Creating Records
+* New/save
+  * Instantiate Object
+  * Set Values
+  * Save
+* Create
+  * Instantiate Object, Set Values, Save - in a single step
+
+#### New
+```ruby
+subject = Subject.new(:name => 'First Last', :position => 1, :visible => true) # mass assignment  
+subject.new_record? # TRUE has this been saved to the db?  
+subject.save # returns true or false  
+subject.new_record? # FALSE has this been saved to the db?  
+subject.id # this has now been generated along with created_at and updated_at  
+```
+
+#### Create
+```ruby
+subject = Subject.create(:name => 'First Last', :position => 1)
+subject.new_record? # FALSE has this been saved to the db?  
+```
+
