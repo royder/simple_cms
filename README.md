@@ -291,7 +291,7 @@ users = users.include(:articles_authored)
 Similar to irb: `rails console` or `rails c` or `rails console env`
 Great way to work with your models and view data during development.
 
-### Creating Records
+## Creating Records
 * New/save
   * Instantiate Object
   * Set Values
@@ -299,7 +299,7 @@ Great way to work with your models and view data during development.
 * Create
   * Instantiate Object, Set Values, Save - in a single step
 
-#### New
+### New
 ```ruby
 subject = Subject.new(:name => 'First Last', :position => 1, :visible => true) # mass assignment  
 subject.new_record? # TRUE has this been saved to the db?  
@@ -308,9 +308,114 @@ subject.new_record? # FALSE has this been saved to the db?
 subject.id # this has now been generated along with created_at and updated_at  
 ```
 
-#### Create
+### Create
 ```ruby
-subject = Subject.create(:name => 'First Last', :position => 1)
+subject = Subject.create(:name => 'First Last', :position => 1)  
 subject.new_record? # FALSE has this been saved to the db?  
 ```
+
+## Updating Records
+If you have a column named updated_at, it will automatically get updated.
+* Find/Save - Set attributes and save in multiple steps
+  * Find Record
+  * Set Values
+  * Save
+* Find/Update - Sets attributes and save in a single step
+  * Find Record
+  * Set values and save
+
+### Find/Save
+```ruby
+subject = Subject.find(1) # find subject with id 1; returns instance  
+subject.new_record? # FALSE  
+subject.name = 'New Subject'  
+subject.save  
+```
+
+### Find/Update
+```ruby
+subject = Subject.find(2)  
+subject.update_attributes(:name => 'First Last', :visible => true) # true/false  
+```
+
+## Deleting Records
+* Find/destroy
+  * Find a record
+  * destroy the record (not delete, delete might bypass some rails default behavior)
+  
+```ruby
+subject = Subject.find(3)  
+subject.destroy  # returns the record that was destroyed  
+```
+
+## Finding Records
+
+The following all make immediate db calls:
+
+### Primary Key Finder
+`Subject.find(id)` - returns an object or an error
+
+### Dynamic Finder
+`Subject.find_by_id(2)` - returns an object or nil (instead of an error)
+This is called dynamic finder because you can `find_by_column_name`.  Returns the first that if finds.
+
+### Find all
+`Subject.all` - returns an array of objects
+
+### First/Last
+`Subject.first` or `Subject.last` -  returns object or nil
+
+### Where Query Method
+`where(conditions)` - Returns an ActiveRelation object, which can be chained to build an SQL statement before executing.  
+`Subject.where(:visible => true).order('position ASC')
+
+Some condition expression types:  
+* String - Flexible, raw SQL - have to watch out for SQL injection
+  * `"name = 'First Name' AND visible = true"`
+* Array - Flexible, raw SQL, safe from SQL injection, gives rails the opportunity to escape values coming in
+  * `['name = ? AND visible = true', 'First Last']`
+* Hash - Simple, escaped SQL as well - each key/value is joined with AND
+  * only supports equality, range, subset: NO or, like, less/greater than... if you need these then use array
+  * `{:name => 'First Last', :visible => true}`
+
+You can also use the `to_sql` method to show what the SQL would be as you build your query method chain.
+
+Other Query Methods:
+* Order Query Method
+  * order(sql_fragment) - table_name.column_name ASC/DESC
+  * table_name not necessary for a single table, but with joined tabled you should include table_name
+  * can sort by more than one column across tables
+* Limit Query Method
+  * limit (int)
+* Order Query Method
+  * offset (int)
+  
+Example:
+`Subject.where(query).order('position' ASC).limit(20).offset(40)`
+
+## Named Scopes
+* Queries defined in a model
+* Defined using ActiveRelation query methods
+* Can be called liked ARel methods, daisy chain, can accept parameters
+* rails 4 must use lambda syntax
+
+So, we create a scope called active and have an anonymous function with what we want.  
+`scope :active, lambda {where(:active => true)}`  
+`scope :active, -> {where(:active => true)}`  -> is a lamda but there are differences between lambda and ->  
+
+The above would be the same as writing a class method on the model like:
+```ruby
+def self  
+  where(:active => true)  
+end  
+```
+
+The way you would call the above would be the same as the query methods:  
+`Customer.active`  
+
+With arguments:  
+`scope :with_content_type, lambda {|ctype| where(:content_type => ctype)}`  
+`Section.with_content_type('html')  
+
+Lambdas are evaluated when they are called, not when they are defined.  So, if you have a 1.week.ago..Time.now, it would be the time when it's being executed.
 
