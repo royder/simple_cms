@@ -1,5 +1,5 @@
 # Simple CMS 
-A simple rails app for learning and referencing
+A simple rails app for learning and referencing.  This README is notes made as I went through the process.
 
 ## Setup
 * Ruby 2.1.6
