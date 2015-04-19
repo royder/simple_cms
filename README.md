@@ -183,14 +183,69 @@ To generate a new migration: `rails generate migration NameOfMigration`
 This will create a new migration within db:  
 `create    db/migrate/20150418232018_name_of_migration.rb` where 20150418232018 is the timestamp to help make each migration unique and put migrations in order.
 
-Migrations come with a predefined method `def change`.  This is a shortcut method for `def up` and `def down`.  The code in up describes what to do to change the db and down describes how to revert.  You can use the shortcut method if your migration tasks have opposite commands.
+Migrations come with a predefined method `def change`.  This is a shortcut method for `def up` and `def down`.  The code in up describes what to do to change the db and down describes how to revert.  You can use the shortcut method if you are using migration methods that have a context for both up and down and can automatically be reversed.  For example, for rename_table, you specify the current and new name. Up will change to the new name and down will automatically change back to the old name.
 
 Create table column syntax formats:  
-    create table 'table' do |t|  
-      t.column 'name', :type, options  
-      t.type 'name', options  
-    end
+```ruby
+create table 'table' do |t|  
+  t.column 'name', :type, options  
+  t.type 'name', options  
+end
+```
 
- ### Model
- To generate a model, which also creates a migration and test templates:
- `rails generate model User`
+Table column types:  
+binary, boolean, date, datetime, decimal, float, integer, string, text, time
+
+The primary key or id column is automatically added.  You only need to specify when you do not want the column to be added.
+
+### Running Migrations
+Run all migrations which have not yet been run:  
+`rake db:migrate` and optionally `RAILS_ENV=env`
+
+Revert all the way back:  
+`rake db:migrate VERSION=0`
+
+View migration status:  
+`rake db:migrate:status`
+
+Run migrate up for a version:  
+`rake db:migrate:up VERSION=20150418232018`
+
+Run migrate down for a version:  
+`rake db:migrate:down VERSION=20150418232018`
+
+Redo migrate for a version - runs down and then immediately runs up:  
+`rake db:migrate:redo VERSION=20150418232018`
+
+Schema.rb will always have the current schema of the database, it will get updated during migrations.
+
+### Migration Methods
+#### Table Migration Methods
+`create_table (table, options) do |t| end`  
+`drop table (table)`  
+`rename_table (table, new_name)`  
+
+#### Column Migration Methods
+`add_column(table, column, type, options)` - cannot use short format like we can in create_table, also, the options might not be compatible will all DBs.  For instance, the option :after to specify the new column position is compatible with MySQL but not with postgres, where you have to recreate the table with the order you want and copy the data over.  
+`remove_column(table, column)`  
+`rename_column(table, column, new_name)`  
+`change_column(table, column, type, options)` - for changing column options in place  
+
+#### Index Migration Methods
+`add_index(table, column, options)` - if we want to create multiple, pass in array for columns  
+`remove_index(table, column)`  
+Some index options are: `:unique => true/false` `:name => 'custome_name'`  
+Always want to add indexes on foreign keys and columns frequently used for lookups
+
+#### Execute Migration Methods
+You can use this to pass along any SQL string to execute: `execute("any SQL string")`
+
+### schema_migrations table
+This table is created to keep track of migrations by storing the migration timestamp as the version
+
+### Solving Migration Problems
+If an migration throws an error half way through and the DB gets in a state in between a migration, it's usually best to fix your migration and then comment out the part of the migration file that completed so it will pick up where it left off or something similar instead of running SQL commands and possibly also mess with the schema_migrations table.
+
+### Model
+To generate a model, which also creates a migration and test templates:  
+`rails generate model ModelName`

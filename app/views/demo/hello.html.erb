@@ -1,0 +1,17 @@
+<h1>Demo#hello</h1>
+<p>Hello world!</p>
+
+<% @array.each {|n| %>
+  <%= n %><br />
+<% } %>
+
+<a href="/demo/index">Index Page 1</a><br />
+<%= link_to('Index Page 2', {:action => 'index'}) %><br />
+
+ID: <%= params[:id] %><br />
+ID: <%= @id %><br />
+Next Page: <%= @page.to_i + 1 %><br />
+
+<hr />
+
+<%= params.inspect %>
