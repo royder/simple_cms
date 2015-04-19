@@ -183,3 +183,14 @@ To generate a new migration: `rails generate migration NameOfMigration`
 This will create a new migration within db:  
 `create    db/migrate/20150418232018_name_of_migration.rb` where 20150418232018 is the timestamp to help make each migration unique and put migrations in order.
 
+Migrations come with a predefined method `def change`.  This is a shortcut method for `def up` and `def down`.  The code in up describes what to do to change the db and down describes how to revert.  You can use the shortcut method if your migration tasks have opposite commands.
+
+Create table column syntax formats:  
+    create table 'table' do |t|  
+      t.column 'name', :type, options  
+      t.type 'name', options  
+    end
+
+ ### Model
+ To generate a model, which also creates a migration and test templates:
+ `rails generate model User`
