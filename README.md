@@ -401,7 +401,7 @@ Example:
 
 So, we create a scope called active and have an anonymous function with what we want.  
 `scope :active, lambda {where(:active => true)}`  
-`scope :active, -> {where(:active => true)}`  -> is a lamda but there are differences between lambda and ->  
+`scope :active, -> {where(:active => true)}`  -> is a lambda but there are differences between lambda and ->  
 
 The above would be the same as writing a class method on the model like:
 ```ruby
@@ -419,3 +419,41 @@ With arguments:
 
 Lambdas are evaluated when they are called, not when they are defined.  So, if you have a 1.week.ago..Time.now, it would be the time when it's being executed.
 
+## Associations in Rails
+### One-to-one 1:1
+One of the two items will have a foreign key which goes on the belongs to table. For example, if a classroom has one teacher, then the teach belongs to the classroom and the foreign key goes on teachers table.  
+ARec: `Classroom has_one :teacher` and `Teacher belongs_to :classroom`  
+
+has_one methods:  
+subject.page and subject.page = page will allow you to get the subject's page or assign it.
+
+### One-to-many 1:m
+A teacher has many courses and a course belongs to a teacher.  The foreign key goes on the courses table.  
+ARec: `Teacher has_many :courses` and `Course belongs_to :teacher`
+
+has_many methods:  
+subject.pages  
+subject.pages << page  
+subject.pages = [page, page, page]  
+subject.pages.delete(page) - removes a page from the array  
+subject.pages.destroy(page) - destroy to destroy the page (deletes from db)  
+subject.pages.clear - remove all pages  
+subject.pages.empty? - check if any pages, like reg arrays  
+subject.pages.size - checks size of array, like reg arrays  
+
+
+### Many-to-many m:m
+A course has many students and a student has many courses.  So, you need two foreign keys in a join table.
+ARec: `Courses has_and_belongs_to_many :students` and `Student has_and_belongs_to_many :courses` (habtm). Use this when the join table is simple and only has the foreign keys.  The join table should not have its own primary key: `(:id => false)`
+
+habtm methods
+same has has_many
+
+### Creating a Join Table
+Naming for rails is first_table_plural_second_table_plural in alphabetical order.  
+`rails generate migration CreateAdminUsersPagesJoin`
+
+### Creating a Rich Join
+You can have a model that is has_many to a join and another that is has_many to the same join and finally the join can belongs_to both.  This new join table will still have the foreign keys but it will also have a primary key.  There is not a naming conventions for this type of join table but it is usually a good idea to end it in -ments or -ships.
+
+See the relationship between the admin users and sections in the app.
