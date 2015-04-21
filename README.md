@@ -465,3 +465,51 @@ So, now you can use admin_user.sections and section.editors instead of the follo
 section.section_edits.map {|se| se.editor}
 
 You cannot easily do section.editors << user, since you need to specify the data in the join table such as summary.
+
+## CRUD and Controllers
+
+Standard Actions
+* create
+  * new - form, always best to instantiate the object upon new action, this allows the ability to set default values for the object either based on call to new or from the defaults set within the db.
+  * create - post
+* read
+  * index - list
+  * show - single rec (requires id)
+* update
+  * edit - form
+  * update - post
+* delete
+  * delete - form
+  * destroy - post
+  
+Usually you will have one controller per model and it should be plural.  Also, you can specify actions while generating the controller.  For example: `rails generate controller Subjects index show new edit delete`
+
+## Forms in Rails
+`form_tag` will create the form, anything in between the do and the end will make up the form.  
+`text_field_tag` will create a text field with the value passed in as the second argument after the field name  
+`text_field` you can specify the object name followed by the attribute name and will use that attribute value for the value of the form  
+`submit_tag` will create the submit for the form
+
+or you can use the `form_for` helper to create a form based on an object
+```ruby
+<%= form_for(:subject, :url => {:action => 'create}) do |f| %>  
+  <%= f.text_field(:name) %>  
+  <%= f.text_field(:position) %>  
+  <%= f.text_field(:visible) %>  
+  <%= submit_tag('Create Subject') %>  
+<% end %>  
+```
+
+## Strong Parameters
+Rails v1,v2 used a blacklisting of attributes, so default was less secure  
+Rails v2 used whitelisting of attributes, so secure by default... but you could turn whitelisting off  
+Rails v4 uses strong parameters which cannot be turned off, and the code for allowing or disallowing attributes is moved from the model to the controller.  
+
+Mark which attributes are available for mass assignment
+params.permit(:first_name, :last_name)
+
+Ensures the parameters are present. If the attributes hash is assigned to subject then need to make sure subject is in the params.  Require does not do permitting but does return the value of the parameter.
+params.require(:subject)
+
+So, you can use `params.require(:subject).permit(:name, :position, :visible)`
+
