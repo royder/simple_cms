@@ -443,17 +443,25 @@ subject.pages.size - checks size of array, like reg arrays
 
 
 ### Many-to-many m:m
-A course has many students and a student has many courses.  So, you need two foreign keys in a join table.
+A course has many students and a student has many courses.  So, you need two foreign keys in a join table.  
 ARec: `Courses has_and_belongs_to_many :students` and `Student has_and_belongs_to_many :courses` (habtm). Use this when the join table is simple and only has the foreign keys.  The join table should not have its own primary key: `(:id => false)`
 
-habtm methods
+habtm methods  
 same has has_many
 
 ### Creating a Join Table
 Naming for rails is first_table_plural_second_table_plural in alphabetical order.  
-`rails generate migration CreateAdminUsersPagesJoin`
+`rails generate migration CreateAdminUsersPagesJoin`  
 
 ### Creating a Rich Join
 You can have a model that is has_many to a join and another that is has_many to the same join and finally the join can belongs_to both.  This new join table will still have the foreign keys but it will also have a primary key.  There is not a naming conventions for this type of join table but it is usually a good idea to end it in -ments or -ships.
 
-See the relationship between the admin users and sections in the app.
+See the relationship between the admin users and sections in the app.  Be careful about updating associations in the db but not refreshing the objects in those associations.
+
+To traverse this rich join, you have to take an additional step.  You should use `has_many :through`  
+`AdminUser has_many :sections, :through => :section_edits` and `Section has_many :admin_users, :through => :section_edits`
+
+So, now you can use admin_user.sections and section.editors instead of the following:  
+section.section_edits.map {|se| se.editor}
+
+You cannot easily do section.editors << user, since you need to specify the data in the join table such as summary.
