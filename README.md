@@ -513,3 +513,28 @@ params.require(:subject)
 
 So, you can use `params.require(:subject).permit(:name, :position, :visible)`
 
+## Layouts
+
+The default is in app/views/layouts/application.html.erb
+
+`<% yield %>` is where the view content is dropped in.  In the controller you can specify `layout 'layout_name'` to tell the controller which layout to use with the views.
+
+Things to usually include in the layouts:
+* Flash Message Structure
+* Head, Title, Header Footer
+
+When rails renders layouts and templates, it does not render them sequentially.  It gathers the instance variables first and binds them to the template, so you can set instance variables in the template for use in the layout.
+
+## Partial Templates
+Reusable HTML fragments.  The naming scheme for a partial is _partial_name.html.erb; begins with an underscore.  
+You call the partial by using `<%= render(:partial => 'partial_name') %>`, you do not include the underscore. You pass data to the partial by adding locals...  `<%= render(:partial => 'partial_name', :locals => {:f => f}) %>` where the key for locals is the variable name that the partial is going to be using and the value is the value for the local.
+
+## Text Helpers
+To make common tasks within views easier.  Some examples are:
+* word_wrap - wraps the text to the line width provided
+* simple_format - takes every single backslash and convert to a br and a double to a p.
+* truncate - truncates based on the length provided with a default of '...'.  The omissions string is included in the total character count.
+* excerpt - uses radius to remove characters before and after the radius using the omission.
+* highlight - looks for certain text and wraps that target text in html tags for styling
+* pluralize - this helper is for forming the plural of words to help if you are working with 0, 1, or more objects. This helper knows most of the plurals such as ox, oxen.  If you need to define plurals you can edit inflections file.
+* cycle - you can loop and on each loop it will use the value in the order of the argument list.
