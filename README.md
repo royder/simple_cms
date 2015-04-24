@@ -667,3 +667,79 @@ Methods:
 `sanitize(html, options)`  
 Removes HTML and JS, watching for all tricks
 Options: :tags, :attributes (as arrays) to whitelist
+
+## Asset Pipeline
+* Concatenates CSS and JS Files
+  * Reduces requests to render and allows caching of these files
+* Compresses/minifies CSS and JS
+  * removes whitespace and comments and makes gzips
+* Precompiles CSS and JS
+* Allows writing assets in other languages (SASS, coffee script, ERB)
+* Adds asset fingerprinting
+  * allows browser to keep cached assets up to date my using an MD5 fingerprint at the end of the filename, so when the asset changes, the file name changes since the fingerprint changes
+
+The location for these assets are in the app/assets directory.  You can still use public for static files.  
+  
+## Manifest Files 
+Manifest files are used to set directives for including asset files.  
+= require_tree . will use all files within and in subdirectories  
+= require_self will use the css defined within the manifest  
+  
+So, the directives for including asset files cause files to be loaded, processed, concatenated, and compressed so that you serve one file back but can still develop with many files for many parts of the site.  This is true for CSS and JS. 
+
+These manifests are processed from top to bottom but require_tree uses an unspecified order.
+
+These are compiled into the public/assets folder.
+
+### Development vs Processing
+* Development does not do all of the above, it serves assets separately but will compile what it needs on the fly from SASS etc
+* Production does not do any asset processing and assumes that assets have been precompiled.
+
+Use the following to precompile:  
+`rake assets:precompile` or `RAILS_ENV=production bundle exec rake assets:precompile`
+
+Since dev vs prod is different in this way, it's best to test assets out in development running as production or on a qa server.
+
+### Stylesheets
+/app/assets/stylesheets  
+.css or Sass .css.scss  
+
+Rails helper for generating the CSS link tags.  The arg is the name of the manifest file.  
+`<%= stylesheet_link_tag('application') %>`
+
+You can also overwrite the default of media=screen:  
+`<%= stylesheet_link_tag('application', :media => 'all') %>`
+
+### JavaScript
+/apps/assets/javascripts  
+.js or .js.coffee for CofeeScript  
+
+Since rails 3.1 jQuery is included by default
+
+JavaScript Helper tag:  
+`<%= javascript_include_tag('name_of_manifest_file') %>`  
+`<%= javascript_tag("alert('Are you sure?');") %>`  
+```
+<%= javascript_tag do %>  
+  alert('Are you sure?');  
+<% end %>  
+```
+
+### Escaping JavaScript
+Need to worry about user-submitted data XSS
+Use `escape_javascript()` or `j()` around the user submitted value
+
+### CoffeeScript
+A scripting language that is compiled into JS with a different syntax that is supposed to be more concise and readable.  
+requires coffee-rails and uglifier gems
+
+### Images
+/app/assets/images  
+
+Image upload can be assisted with gems (paperclip and carrierwave)
+
+Rails img tag helper:  
+`<%= image_tag('logo.png') %>`  
+`<%= image_tag('logo.png', :size => '90x55', :alt => 'logo') %>`  
+`<%= image_tag('logo.png', :width => 90, :height => 55, :alt => 'logo') %>`  
+

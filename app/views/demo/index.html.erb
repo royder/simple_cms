@@ -4,3 +4,11 @@
 <a href="/demo/hello">Hello Page 1</a><br />
 <%= link_to('Hello Page 2', {:action => 'hello'}) %><br />
 <%= link_to('Hello With Parameters', {:action => 'hello', :page => 5, :id => 20}) %>
+
+<br />
+<% name = 'Kyle' %>
+<% name = "Hack'); alert('I hacked you!" %>
+
+<%= link_to('Onclick Test', '#', :onclick => "jsAlert('#{j(name)}'); return true;") %>
+
+<%= javascript_tag("jsAlert('#{j(name)}');") %>
