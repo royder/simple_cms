@@ -538,3 +538,132 @@ To make common tasks within views easier.  Some examples are:
 * highlight - looks for certain text and wraps that target text in html tags for styling
 * pluralize - this helper is for forming the plural of words to help if you are working with 0, 1, or more objects. This helper knows most of the plurals such as ox, oxen.  If you need to define plurals you can edit inflections file.
 * cycle - you can loop and on each loop it will use the value in the order of the argument list.
+
+## Number Helpers
+number_to_currency  
+number_to_percentage  
+number_with_percision / number_to_rounded  
+number_with_delimiter / number_to_delimited  
+number_to_human  
+number_to_human_size  
+number_to_phone  
+
+Number as first arg and hash of options as second.  
+options:  
+delimiter - delimits thousands  
+separator - decimal separator  
+precision - decimal places to show  
+
+`number_to_currency(34.5)`  
+$34.50
+
+`number_to_currency(34.5, :precision => 0, :unit => "kr", :format => "%n %u)`  
+35 kr
+
+`number_to_percentage(34.5)`  
+34.500%
+
+`number_to_percentage(34.5, :precision => 1, :separator => '.')`  
+34,5%
+
+`number_with_percision(34.56789)`   
+34.568 (rounds)  #also known as number_to_round
+
+`number_with_percision(34.56789, :precision => 6)`  
+34.567890
+
+`number_with_delimiter(3456789)`  
+3,456,789 #also known as number_to_delimited
+
+`number_with_delimiter(3456789, :delimiter => ' ')`  
+3 456 789
+
+`number_to_human(123456789)`  
+123 Million
+
+`number_to_human(123456789, :precision => 5)`  
+123.46 Million
+
+`number_to_human_size(1234567)`  
+1.18 MB
+
+`number_to_human_size(1234567, :precision => 2)`  
+1.2 MB
+
+`number_to_phone(1234567890)`  
+123-456-7890
+
+```ruby
+number_to_phone(1234567890,  
+  :area_code => true,  
+  :delimiter => ' ',  
+  :country_code => 1,  
+  :extension => '321')  
+```
++1 (123) 456 7890 x 321  
+  
+## Date and Time Helpers
+
+DateTime contains:  
+second(s), minute(s), hour(s), day(s), week(s), time(s), year(s)  
+`Time.now + 30.days - 23.minutes` # returns a DateTime that has been modified based on the number of seconds
+
+Date calculations from Time.now:  
+ago, from_now  
+`30.days.from_now - 23.minutes` is the same as `Time.now + 30.days - 23.minutes`
+
+Relative  DateTime calculations:
+`beginning_of_day` and `end_of_day`  
+`beginning_of_week` and `end_of_week`  
+`beginning_of_month` and `end_of_month`  
+`beginning_of_year` and `end_of_year`  
+`yesterday` and `tomorrow`  
+`last_week` and `next_week`  
+`last_month` and `next_month`  
+`last_year` and `next_year`  
+
+`Time.now.last_year.end_of_month.beginning_of_day` # a good way to jump around in time
+
+Ruby DateTime  
+`datetime.strftime(format code)`  
+`Time.now.strftime("%B %d, %Y %H:%M)`
+
+Rails DateTime  
+`datetime.to_s( format_symbol )`  
+:db, :number, :time, :short, :long, :long_ordinal
+
+You can setup symbols in config/initializers/date_formats.rb  
+Time::DATE_FORMATS[:custom] = "%B %e, %Y at %l:%M %p"
+
+## Custom Helpers
+* Created when generating a controller 
+* Any defined will be available in view templates
+
+Useful for: 
+* Frequently used code
+* Storing complex code to simplify views
+* Writing large sections of Ruby code
+
+Application based helpers should go into application_helpers file as a best practice.
+
+## Sanitize Helpers
+
+XSS  and HTML 
+Consider all user-entered data unsafe:
+* URL parms
+* Form parms
+* Cookie Data
+* Database data
+
+Methods:  
+`html_escape()`, `h()` (have to use these in older version of rails, now its auto)  
+`raw()`  
+`html_safe`  
+`html_safe?` - has it been marked html safe or not
+
+`strip_links(html)` - Removes HTML links from text
+`strip_tags(html)` - Remove all HTML tags from text
+  
+`sanitize(html, options)`  
+Removes HTML and JS, watching for all tricks
+Options: :tags, :attributes (as arrays) to whitelist
